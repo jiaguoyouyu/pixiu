@@ -1,0 +1,36 @@
+# Secrets / credentials
+.env
+.env.*
+*.key
+*.pem
+*secret*
+*token*
+*credential*
+
+# Local databases
+data/*.duckdb
+data/*.duckdb.*
+data/*.sqlite
+data/*.db
+
+# Generated outputs / logs
+outputs/
+*.log
+
+# Backups / snapshots
+backups/
+snapshots/
+*.tar.gz
+*.zip
+
+# Python / cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# macOS / editors
+.DS_Store
+.vscode/
+.idea/

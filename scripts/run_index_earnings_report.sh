@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+RUN_TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S %Z')"
+
+CALENDAR_FILE="${PROJECT_ROOT}/outputs/index_weekly_earnings_calendar.csv"
+REPORT_FILE="${PROJECT_ROOT}/outputs/index_weekly_earnings_report.md"
+SUMMARY_FILE="$(mktemp -t index_earnings_radar_summary.XXXXXX)"
+
+cd "${PROJECT_ROOT}" || exit 1
+
+python3 scripts/index_universe_earnings_radar.py
+RADAR_EXIT_CODE=$?
+
+FINAL_EXIT_CODE=${RADAR_EXIT_CODE}
+if [[ ! -f "${CALENDAR_FILE}" || ! -f "${REPORT_FILE}" ]]; then
+  FINAL_EXIT_CODE=1
+fi
+
+{
+  echo "Index Universe Weekly Earnings Radar Run"
+  echo "Run timestamp: ${RUN_TIMESTAMP}"
+  echo "Project root: ${PROJECT_ROOT}"
+  echo "Radar exit code: ${RADAR_EXIT_CODE}"
+  echo "Script exit code: ${FINAL_EXIT_CODE}"
+  echo
+  echo "Output files:"
+  if [[ -f "${CALENDAR_FILE}" ]]; then
+    echo "- Index weekly earnings CSV: ${CALENDAR_FILE}"
+  else
+    echo "- Index weekly earnings CSV: MISSING (${CALENDAR_FILE})"
+  fi
+  if [[ -f "${REPORT_FILE}" ]]; then
+    echo "- Index weekly Markdown report: ${REPORT_FILE}"
+  else
+    echo "- Index weekly Markdown report: MISSING (${REPORT_FILE})"
+  fi
+  echo
+  echo "Security boundary: research-only; no brokerage connection; no orders; no private accounts; no naked options."
+  echo "Not financial advice"
+  echo "Model output requires human review"
+  echo "Data quality may affect results"
+  echo
+  echo "Provider status:"
+  if [[ -f "${REPORT_FILE}" ]]; then
+    awk '
+      /^## Provider Status/ { in_section=1; next }
+      /^## / && in_section { in_section=0 }
+      in_section && NF { print }
+    ' "${REPORT_FILE}"
+  else
+    echo "- Provider status unavailable because report is missing."
+  fi
+  echo
+} > "${SUMMARY_FILE}"
+
+if [[ -f "${CALENDAR_FILE}" ]]; then
+  python3 - "${CALENDAR_FILE}" >> "${SUMMARY_FILE}" <<'PY'
+import csv
+import sys
+
+calendar_path = sys.argv[1]
+with open(calendar_path, newline="", encoding="utf-8") as handle:
+    rows = list(csv.DictReader(handle))
+
+def as_int(value):
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
+
+confirmed_next_7 = []
+for row in rows:
+    days = as_int(row.get("days_until_earnings"))
+    if days is not None and 0 <= days <= 7:
+        confirmed_next_7.append(row)
+
+data_gap_count = sum(
+    1
+    for row in rows
+    if row.get("earnings_date") in {"", "N/A", None}
+    or row.get("importance_bucket") == "Data Gap / Watch"
+)
+high_impact_data_gaps = sorted(
+    [
+        row
+        for row in rows
+        if row.get("earnings_date") in {"", "N/A", None}
+        and float(row.get("importance_score") or 0.0) >= 65.0
+    ],
+    key=lambda row: (-float(row.get("importance_score") or 0.0), row.get("ticker", "")),
+)
+
+print(f"Tickers loaded from index universe: {len(rows)}")
+print(f"Confirmed earnings in next 7 days: {len(confirmed_next_7)}")
+print(f"High-impact data gaps: {len(high_impact_data_gaps)}")
+print(f"Data Gap / Watch rows: {data_gap_count}")
+print()
+print("Top 20 market-moving earnings:")
+if not confirmed_next_7:
+    print("- No confirmed index earnings in next 7 calendar days.")
+else:
+    columns = [
+        "ticker",
+        "company_name",
+        "index_memberships",
+        "earnings_date",
+        "report_timing",
+        "days_until_earnings",
+        "importance_score",
+        "importance_bucket",
+        "cad_alternative",
+    ]
+    print(",".join(columns))
+    for row in confirmed_next_7[:20]:
+        values = []
+        for column in columns:
+            value = str(row.get(column, "")).replace("\n", " ").replace(",", ";")
+            values.append(value)
+        print(",".join(values))
+
+print()
+print("Top 10 high-impact data gaps / watch:")
+if not high_impact_data_gaps:
+    print("- None")
+else:
+    columns = [
+        "ticker",
+        "company_name",
+        "index_memberships",
+        "importance_score",
+        "importance_bucket",
+        "cad_alternative",
+    ]
+    print(",".join(columns))
+    for row in high_impact_data_gaps[:10]:
+        values = []
+        for column in columns:
+            value = str(row.get(column, "")).replace("\n", " ").replace(",", ";")
+            values.append(value)
+        print(",".join(values))
+PY
+else
+  {
+    echo "Tickers loaded from index universe: unavailable because index weekly earnings CSV is missing."
+    echo "Confirmed earnings in next 7 days: unavailable because index weekly earnings CSV is missing."
+    echo "High-impact data gaps: unavailable because index weekly earnings CSV is missing."
+    echo "Data Gap / Watch rows: unavailable because index weekly earnings CSV is missing."
+    echo
+    echo "Top 20 market-moving earnings: unavailable because index weekly earnings CSV is missing."
+  } >> "${SUMMARY_FILE}"
+fi
+
+cat "${SUMMARY_FILE}"
+
+if command -v pbcopy >/dev/null 2>&1; then
+  if pbcopy < "${SUMMARY_FILE}" >/dev/null 2>&1; then
+    echo
+    echo "Summary copied to macOS clipboard."
+  else
+    echo
+    echo "pbcopy is available but clipboard copy failed; summary printed above."
+  fi
+else
+  echo
+  echo "pbcopy is unavailable; summary printed above."
+fi
+
+exit "${FINAL_EXIT_CODE}"

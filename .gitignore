@@ -34,3 +34,5 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+README_investment_ranker.md.bak-*
+data/index_universe_snapshot_*.csv

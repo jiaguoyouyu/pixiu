@@ -1,0 +1,39 @@
+ticker,name,sector
+NVDA,NVIDIA,Semiconductors
+AMD,Advanced Micro Devices,Semiconductors
+AVGO,Broadcom,Semiconductors
+TSM,Taiwan Semiconductor Manufacturing,Semiconductors
+ASML,ASML Holding,Semiconductors
+ARM,Arm Holdings,Semiconductors
+SMCI,Super Micro Computer,High-volatility growth
+MU,Micron Technology,Semiconductors
+QCOM,Qualcomm,Semiconductors
+MRVL,Marvell Technology,Semiconductors
+PLTR,Palantir Technologies,AI software
+MSFT,Microsoft,Cloud software
+GOOGL,Alphabet,Cloud software
+AMZN,Amazon,Cloud software
+META,Meta Platforms,Software
+CRM,Salesforce,Software
+NOW,ServiceNow,Software
+SNOW,Snowflake,Cloud software
+DDOG,Datadog,Cloud software
+CRWD,CrowdStrike,Cybersecurity
+NET,Cloudflare,Cloud software
+MDB,MongoDB,Software
+SHOP,Shopify,High-volatility growth
+TSLA,Tesla,High-volatility growth
+COIN,Coinbase,High-volatility growth
+APP,AppLovin,High-volatility growth
+RDDT,Reddit,High-volatility growth
+IONQ,IonQ,High-volatility growth
+SOUN,SoundHound AI,High-volatility growth
+RBLX,Roblox,High-volatility growth
+SPY,SPDR S&P 500 ETF Trust,ETF
+QQQ,Invesco QQQ Trust,ETF
+SMH,VanEck Semiconductor ETF,ETF
+SOXX,iShares Semiconductor ETF,ETF
+XLK,Technology Select Sector SPDR Fund,ETF
+IYW,iShares U.S. Technology ETF,ETF
+VGT,Vanguard Information Technology ETF,ETF
+ARKK,ARK Innovation ETF,ETF

@@ -1,0 +1,19 @@
+{
+  "label": "sample status packet",
+  "level": 1,
+  "purpose": "Demonstrate a safe Level 1 Pixiu dev-loop command packet.",
+  "command": "python3 scripts/pixiu_dev_bridge.py status",
+  "requires_yes": false,
+  "expected_outputs": [
+    "workdir",
+    "git_status",
+    "latest_commits"
+  ],
+  "safety_notes": [
+    "local-only",
+    "no network",
+    "no commit",
+    "no push",
+    "no snapshot"
+  ]
+}

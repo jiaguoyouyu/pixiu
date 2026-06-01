@@ -1,0 +1,27 @@
+{
+  "queue_label": "sample Pixiu v2.2F.1 safe status queue",
+  "description": "Safe Level 1 queue for status and AI validation.",
+  "stop_on_error": true,
+  "commands": [
+    {
+      "label": "Pixiu queue status",
+      "level": 1,
+      "command": "python3 scripts/pixiu_dev_queue.py status"
+    },
+    {
+      "label": "Pixiu bridge status",
+      "level": 1,
+      "command": "python3 scripts/pixiu_dev_bridge.py status"
+    },
+    {
+      "label": "Git short status",
+      "level": 1,
+      "command": "git status --short"
+    },
+    {
+      "label": "Latest commits",
+      "level": 1,
+      "command": "git log --oneline -5"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "queue_label": "Pixiu daily research workflow preset",
+  "description": "Reusable v2.2F.2 daily preset: run production research, signal outcome sample review, core warehouse queries, and git clean check. Research-only.",
+  "stop_on_error": true,
+  "commands": [
+    {
+      "label": "Queue status",
+      "level": 1,
+      "command": "python3 scripts/pixiu_dev_queue.py status"
+    },
+    {
+      "label": "Daily production research",
+      "level": 2,
+      "command": "./scripts/run_daily_production_research.sh"
+    },
+    {
+      "label": "Signal outcomes sample tracking",
+      "level": 2,
+      "command": "python3 scripts/track_signal_outcomes.py --allow-template"
+    },
+    {
+      "label": "Production latest",
+      "level": 1,
+      "command": "python3 scripts/query_research_warehouse.py production-latest"
+    },
+    {
+      "label": "Production action bias summary",
+      "level": 1,
+      "command": "python3 scripts/query_research_warehouse.py production-action-bias-summary"
+    },
+    {
+      "label": "Action bias drift",
+      "level": 1,
+      "command": "python3 scripts/query_research_warehouse.py action-bias-drift"
+    },
+    {
+      "label": "Duplicate production check",
+      "level": 1,
+      "command": "python3 scripts/query_research_warehouse.py duplicate-production-check"
+    },
+    {
+      "label": "Git clean check",
+      "level": 1,
+      "command": "git status --short"
+    }
+  ]
+}

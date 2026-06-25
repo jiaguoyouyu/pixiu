@@ -161,24 +161,25 @@ def status_from_fail_warn(hard_failures: list[str], warnings: list[str], hard_st
 
 def check_freshness(config: AuditConfig, hard_failures: list[str], checks: list[dict[str, str]]) -> None:
     required = [
-        ("default scores", config.default_scores),
-        ("expanded scores", config.expanded_scores),
-        ("daily brief", config.daily_brief),
-        ("action-bias drift report", config.drift_report),
-        ("signal outcomes CSV", config.signal_outcomes_csv),
-        ("signal outcomes report", config.signal_outcomes_report),
+        ("default scores", config.default_scores, True),
+        ("expanded scores", config.expanded_scores, True),
+        ("daily brief", config.daily_brief, True),
+        ("action-bias drift report", config.drift_report, True),
+        ("signal outcomes CSV", config.signal_outcomes_csv, False),
+        ("signal outcomes report", config.signal_outcomes_report, False),
     ]
     evidence: list[str] = []
     start = len(hard_failures)
-    for label, path in required:
+    for label, path, require_fresh_mdate in required:
         display = rel(path, config.root)
         if not path.exists():
             hard_failures.append(f"Missing required artifact: {display}")
             evidence.append(f"{label}: missing")
             continue
         age = artifact_age_days(path, config.as_of_date)
-        evidence.append(f"{label}: mdate={artifact_date(path).isoformat()}, age_days={age}")
-        if age > MAX_ARTIFACT_AGE_DAYS:
+        freshness_scope = "freshness_required" if require_fresh_mdate else "presence_required"
+        evidence.append(f"{label}: mdate={artifact_date(path).isoformat()}, age_days={age}, {freshness_scope}")
+        if require_fresh_mdate and age > MAX_ARTIFACT_AGE_DAYS:
             hard_failures.append(
                 f"Required artifact is stale: {display} age_days={age}, max_age_days={MAX_ARTIFACT_AGE_DAYS}"
             )
@@ -576,7 +577,7 @@ def render_report(report: AuditReport, config: AuditConfig) -> str:
         "- REVIEW CAREFULLY: no hard failures, but at least one warning.",
         "- DO NOT USE: at least one hard failure.",
         "",
-        "Missing or stale required daily artifacts never produce USE.",
+        "Missing required artifacts never produce USE. Stale daily scores, Daily Brief, or action-bias drift artifacts never produce USE; signal-outcome artifact modification dates are evidence only.",
         "",
     ]
     return "\n".join(lines)

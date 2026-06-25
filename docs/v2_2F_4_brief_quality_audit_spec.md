@@ -63,7 +63,7 @@ Verdict rules:
 Hard failures include:
 
 - missing required artifact
-- stale required artifact
+- stale daily score, Daily Brief, or action-bias drift artifact
 - default score rows below `MIN_DEFAULT_SCORE_ROWS`
 - expanded score rows below `MIN_EXPANDED_SCORE_ROWS`
 - Daily Brief top candidate mismatch
@@ -106,6 +106,7 @@ The existing expanded-mode phrase `options analysis unavailable` is not counted 
 The audit reads existing signal-outcome rows and uses `outcome_status`.
 
 - Missing outcome artifacts or no outcome rows are hard failures.
+- Old signal-outcome artifact modification dates are evidence only, not hard freshness failures.
 - Non-`ok` outcome rows are hard failures.
 - Top daily candidates without an outcome row are warnings, because existing outcome tracking is sample/local-history based and does not promise full coverage.
 

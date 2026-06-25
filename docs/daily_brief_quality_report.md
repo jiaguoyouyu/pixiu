@@ -28,7 +28,7 @@ outputs/daily_brief_quality_report.md
 - `REVIEW CAREFULLY`: no hard failures, but at least one warning.
 - `DO NOT USE`: at least one hard failure.
 
-Missing or stale required daily artifacts always prevent `USE`.
+Missing required artifacts always prevent `USE`. Stale daily scores, the Daily Brief, or action-bias drift artifacts prevent `USE`; stale signal-outcome artifact modification dates are evidence only.
 
 ## Safety
 
